@@ -1,0 +1,149 @@
+<!-- templates/controle.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle do Ar-Condicionado</title>
+    <!-- Importando o CSS do Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        margin-top: 50px;
+      }
+
+      .card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+      }
+
+      .card:hover {
+        transform: translateY(-10px);
+      }
+
+      .btn-custom {
+        background-color: #007bff;
+        color: white;
+        border-radius: 50px;
+        padding: 10px 20px;
+        transition: background-color 0.3s ease-in-out;
+      }
+
+      .btn-custom:hover {
+        background-color: #0056b3;
+      }
+
+      .temperature-input {
+        max-width: 120px;
+        margin: 10px auto;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #007bff;
+      }
+
+      .status {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+
+      .status.connected {
+        color: green;
+      }
+
+      .status.disconnected {
+        color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Controle do Ar-Condicionado</h1>
+
+      <div id="status" class="status">Verificando conexão...</div> <!-- Exibe o status de conexão -->
+
+      <div class="row justify-content-center">
+        <div class="col-md-4">
+          <div class="card text-center p-4">
+            <h3 class="mb-4">{{ status }}</h3>
+
+            <form method="get" action="/controle/ligar/">
+              <button class="btn btn-custom btn-lg mb-3" type="submit">
+                Ligar
+              </button>
+            </form>
+
+            <form method="get" action="/controle/desligar/">
+              <button class="btn btn-custom btn-lg mb-3" type="submit">
+                Desligar
+              </button>
+            </form>
+
+            <form method="get" action="/controle/ajustar_temperatura/22/">
+              <div class="temperature-input mb-3">
+                <label for="temp" class="form-label">Temperatura (°C)</label>
+                <input
+                  type="number"
+                  id="temp"
+                  name="temp"
+                  class="form-control"
+                  value="22"
+                  min="16"
+                  max="30"
+                />
+              </div>
+              <button class="btn btn-custom btn-lg" type="submit">
+                Ajustar Temperatura
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Importando o JS do Bootstrap 5 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Função para verificar a conexão com o ESP32
+      function verificarConexao() {
+        fetch('/controle/verificar_conexao/')
+          .then(response => response.json())
+          .then(data => {
+            const statusDiv = document.getElementById('status');
+            if (data.conectado) {
+              statusDiv.textContent = 'ESP32 Conectado';
+              statusDiv.classList.add('connected');
+              statusDiv.classList.remove('disconnected');
+            } else {
+              statusDiv.textContent = 'ESP32 Desconectado';
+              statusDiv.classList.add('disconnected');
+              statusDiv.classList.remove('connected');
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao verificar conexão:', error);
+          });
+      }
+
+      // Verificar a conexão a cada 5 segundos
+      setInterval(verificarConexao, 5000);
+
+      // Chamar a função logo que a página carregar
+      verificarConexao();
+    </script>
+  </body>
+</html>
